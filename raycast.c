@@ -114,7 +114,7 @@ double* raycast (V3 Rd, V3 Ro, int count, Object *array, double* background){
 Pixel* render (int width, int height, Object camera, Object *array, int count){
   Pixel *pix_info;
   double *color;
-  double background[3] = {0, 1, 0};
+  double background[3] = {0.97647, 0.513725, 0.12549};
   double dx = (camera.width/width);
   double dy = (camera.height/height);
   int current_pix = 0;
@@ -123,7 +123,7 @@ Pixel* render (int width, int height, Object camera, Object *array, int count){
   double* Pij = malloc(sizeof(double) * 3);
   double* Rd = malloc(sizeof(double) * 3);
   double* Ro = malloc(sizeof(double) * 3);
-  v3_assign(Ro, 0 , 0, -1);
+  v3_assign(Ro, 0 , 0, 0);
   for (int i = 0; i < height; i++){
     double Py = 0 - (camera.height/2) + dy * (i + 0.5);
     for (int j = 0; j < width; j++){
@@ -131,8 +131,8 @@ Pixel* render (int width, int height, Object camera, Object *array, int count){
      
       v3_assign(Pij,
 		Px,
-		Py,
-		1);
+		-Py,
+		-1);
       
       v3_sub(Rd, Pij, Ro);
       
@@ -172,7 +172,6 @@ double sphere_intersection (V3 Rd, V3 Ro, Object obj){
   double Cy = obj.position[1];
   double Cz = obj.position[2];
   double r = obj.radius;
-
   //Calculating A B C for quadratic equation
   double A = pow(Rdx, 2) + pow(Rdy, 2) + pow(Rdz, 2);
   double B = 2 * (Rdx * (Rox - Cx) + Rdy * (Roy - Cy) + Rdz * (Roz - Cz));
@@ -184,13 +183,14 @@ double sphere_intersection (V3 Rd, V3 Ro, Object obj){
 
   //Calculating discriminant
   double dis;
-  dis = (B * B) - (4 * C); 
+  dis = pow(B,2) - (4 * C); 
   if (dis < 0){
     return(INFINITY);
   }
   
   //Calculating for t0 and t1
-  t0 = (-B - sqrt(dis))/2;
+  double sqrt_dis = sqrt(dis);
+  t0 = (-B - sqrt_dis)/2;
   if (t0 > 0){
     return(t0);
   }else{
@@ -202,6 +202,8 @@ double sphere_intersection (V3 Rd, V3 Ro, Object obj){
 double plane_intersection (V3 Rd, V3 Ro, Object obj){
   //value for dot product result
   double Vd;
+  double Vo;
+  double t;
   
   //Normal values
   double A = obj.normal[0];
@@ -223,11 +225,12 @@ double plane_intersection (V3 Rd, V3 Ro, Object obj){
     return(INFINITY);
   }
   if (Vd > 0){
-    double* temp = malloc(sizeof(double) * 3);
-    v3_sub(temp, Ro, obj.position);
-    double dot_temp1 = v3_dot(Pn, temp);
-    double t = -(dot_temp1/Vd);
-    if ( t < 0){
+    double* temp_v = malloc(sizeof(double) * 3);
+    v3_sub(temp_v, Ro, obj.position);
+    double temp_top = v3_dot(Pn, temp_v);
+    double temp_bot = v3_dot(Pn, Rd);
+    t = -(temp_top/temp_bot);
+    if (t < 0){
       return(INFINITY);
     }else{
       return(t);

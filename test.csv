@@ -1,2 +1,4 @@
-camera, width: 35, height: 35
-sphere, color: [1.0, 0.0, 0.0], position: [0, 2, 5], radius: 16
+camera, width: 5, height: 5
+sphere, color: [0.42745, 0.10196, 0.10196], position: [0, 0, -1], radius: .5
+sphere, color: [1.0, 1.0, 0], position: [0, 0, -2.5], radius: 1.5
+plane, color: [0, 0, 1.0], position: [0, -2, 2], normal: [0, 1, -1]
