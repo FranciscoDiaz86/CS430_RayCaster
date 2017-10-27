@@ -21,12 +21,14 @@ int parse_type(FILE *fh, Object *obj){
   char buff[255];
   int buff_pos = 0;
   int file_ptr;
-  
+   
   while(1){
     chr = fgetc(fh);
-    if(chr == ','){
+      
+    if (chr == ','){
       break;
     }
+
     buff[buff_pos] = chr;
     buff[buff_pos + 1] = '\0';
     buff_pos++;

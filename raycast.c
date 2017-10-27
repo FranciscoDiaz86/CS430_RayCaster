@@ -17,7 +17,13 @@ Pixel* render(int width, int height, Object camera, Object *array, int count);
 double sphere_intersection(V3 Rd, V3 Ro, Object obj);
 double plane_intersection(V3 Rd, V3 Ro, Object obj);
 
-int main (int argc, char *argv[]){
+int main (int argc, char *argv[]) {
+  //checking for the right amout of arguments
+  if (argc != 5) {
+    fprintf(stderr, "Usage: The program needs a width height cvs file output ppm file.\n");
+    return(1);
+  }
+  
   int obj_count = 0;
   Object obj_array[128];
   int width = atoi(argv[1]);
@@ -28,6 +34,25 @@ int main (int argc, char *argv[]){
   
   csv_file = fopen(argv[3], "r");
   output_file = fopen(argv[4], "w");
+
+  //Checking to see if the files opened without a problem
+  if (csv_file == NULL) {
+    fprintf(stderr, "Error: Problem opening the CSV file!\n");
+    return(1);
+  }
+
+  if (output_file == NULL) {
+    fprintf(stderr, "Error: Problem opening the output PPM file!\n");
+    return(1);
+  }
+
+  fseek(csv_file, 0, SEEK_END);
+  unsigned long len = (unsigned long)ftell(csv_file);
+  if (len <= 0) {
+    fprintf(stderr, "ERROR: The CSV file is empty!\n");
+    return(1);
+  }
+  rewind(csv_file);
   
   while (1){
     if (feof(csv_file)){
@@ -45,15 +70,26 @@ int main (int argc, char *argv[]){
 
     obj_count++; 
   }
+
+  if (obj_count == 0) {
+    fprintf(stderr, "ERROR: The file had no objects in it!\n");
+    return(1);
+  }
+         
   Object camera_ptr;
-  for (int i = 0; i < obj_count; i++){
-    if (obj_array[i].kind == 1){
+  for (int i = 0; i < obj_count; i++) {
+    if (obj_array[i].kind == 1) {
       camera_ptr = obj_array[i];
       break;
+    }
+    else {
+      fprintf(stderr, "ERROR: The file had no camera object! Please add one.\n");
+      return(1);
     }
   }
 
   pix_image = render(width, height, camera_ptr, obj_array, obj_count);
+
   //Writing P3 to file
   fprintf(output_file, "%s\n", "P3");
 
